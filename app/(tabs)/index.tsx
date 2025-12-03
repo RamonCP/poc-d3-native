@@ -1,13 +1,7 @@
 import { Image } from "expo-image";
 import { Platform, StyleSheet, View } from "react-native";
 
-import { HelloWave } from "@/components/hello-wave";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Link } from "expo-router";
-import { MyChart } from "@/components/ChartAnnual";
-import Chart from "@/components/Grafico";
+import Chart from "@/components/LineChart";
 
 export default function HomeScreen() {
   return (

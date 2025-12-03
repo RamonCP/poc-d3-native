@@ -38,7 +38,7 @@ const data = [
 ];
 // const data = [120, 280, 150, 450, 300, 400, 380, 420, 500, 380, 360, 330];
 
-export default function Chart() {
+export default function LineChart() {
   const itemWidth = SCREEN_WIDTH / VISIBLE_MONTHS;
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -72,12 +72,15 @@ export default function Chart() {
     [data]
   );
 
-  const x = xScale(selectedIndex);
+  const x = selectedIndex !== null ? xScale(selectedIndex) : 0;
 
-  const safeLeft = Math.min(
-    Math.max(x - tooltipWidth / 2, PADDING),
-    SCREEN_WIDTH - tooltipWidth - PADDING
-  );
+  const safeLeft =
+    x !== undefined
+      ? Math.min(
+          Math.max(x - tooltipWidth / 2, PADDING),
+          SCREEN_WIDTH - tooltipWidth - PADDING
+        )
+      : 0;
 
   return (
     <View>
@@ -140,20 +143,22 @@ export default function Chart() {
           <Svg height={CHART_HEIGHT} width={itemWidth * data.length}>
             <Path d={linePath} stroke="#354053" strokeWidth={3} fill="none" />
 
-            <Line
-              x1={xScale(selectedIndex)}
-              y1={0}
-              x2={xScale(selectedIndex)}
-              y2={CHART_HEIGHT}
-              stroke="#354053"
-              strokeWidth={1.5}
-              strokeDasharray={[4, 4]}
-              strokeLinecap="butt"
-            />
+            {selectedIndex !== null && (
+              <Line
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={CHART_HEIGHT}
+                stroke="#354053"
+                strokeWidth={1.5}
+                strokeDasharray={[4, 4]}
+                strokeLinecap="butt"
+              />
+            )}
 
             {selectedIndex !== null && (
               <Circle
-                cx={xScale(selectedIndex)}
+                cx={x}
                 cy={yScale(data[selectedIndex])}
                 r={7}
                 fill="#F9D56D"
