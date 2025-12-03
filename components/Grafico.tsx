@@ -82,7 +82,6 @@ export default function Chart() {
   return (
     <View>
       <View style={{ flex: 1 }}>
-        {/* Grid */}
         <View style={StyleSheet.absoluteFill}>
           {Array.from({ length: GRID_LINES }).map((_, i) => {
             const top = ((CHART_HEIGHT + 90) / GRID_LINES) * i;
@@ -95,7 +94,7 @@ export default function Chart() {
                   left: 0,
                   right: 0,
                   height: 1,
-                  backgroundColor: "#9BABBF66", // cor da linha
+                  backgroundColor: "#9BABBF66",
                   opacity: 0.5,
                 }}
               />
