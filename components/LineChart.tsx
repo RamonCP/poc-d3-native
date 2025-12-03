@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   ScrollView,
@@ -9,6 +9,12 @@ import {
 } from "react-native";
 import Svg, { Path, Circle, Line } from "react-native-svg";
 import * as d3 from "d3";
+import dayjs from "dayjs";
+
+type LineChartProps = {
+  data: number[];
+  initialDate: string;
+};
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const VISIBLE_MONTHS = 6;
@@ -32,13 +38,15 @@ const months = [
   "dez",
 ];
 
-const data = [
-  1890120.9, 540320.15, 2300100.8, 980760.3, 1450600.44, 670120.01, 2450890.75,
-  1120300.67, 367723.53, 1250345.98, 850123.45, 1900500.77,
-];
+// const data = [
+//   1890120.9, 540320.15, 2300100.8, 980760.3, 1450600.44, 670120.01, 2450890.75,
+//   1120300.67, 367723.53, 1250345.98, 850123.45, 1900500.77,
+// ];
 // const data = [120, 280, 150, 450, 300, 400, 380, 420, 500, 380, 360, 330];
 
-export default function LineChart() {
+export default function LineChart({ data, initialDate }: LineChartProps) {
+  const scrollRef = useRef<ScrollView>(null);
+
   const itemWidth = SCREEN_WIDTH / VISIBLE_MONTHS;
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -82,6 +90,21 @@ export default function LineChart() {
         )
       : 0;
 
+  useEffect(() => {
+    if (!initialDate) return;
+
+    const index = dayjs(initialDate).month(); // 0..11
+
+    setSelectedIndex(index);
+
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        x: index * TOUCH_WIDTH,
+        animated: true,
+      });
+    });
+  }, [initialDate]);
+
   return (
     <View>
       <View style={{ flex: 1 }}>
@@ -105,7 +128,11 @@ export default function LineChart() {
           })}
         </View>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        ref={scrollRef}
+      >
         <View
           style={{
             height: CHART_HEIGHT,

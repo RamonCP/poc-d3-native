@@ -1,7 +1,12 @@
 import { Image } from "expo-image";
 import { Platform, StyleSheet, View } from "react-native";
 
-import Chart from "@/components/LineChart";
+import LineChart from "@/components/LineChart";
+
+const data = [
+  1890120.9, 540320.15, 2300100.8, 980760.3, 1450600.44, 670120.01, 2450890.75,
+  1120300.67, 367723.53, 1250345.98, 850123.45, 1900500.77,
+];
 
 export default function HomeScreen() {
   return (
@@ -11,8 +16,7 @@ export default function HomeScreen() {
         marginTop: 80,
       }}
     >
-      {/* <MyChart /> */}
-      <Chart />
+      <LineChart initialDate={"2018-10-05T16:00:00.000Z"} data={data} />
     </View>
   );
 }
