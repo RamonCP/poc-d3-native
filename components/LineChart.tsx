@@ -149,11 +149,18 @@ export default function LineChart({ data, initialDate }: LineChartProps) {
               style={[
                 styles.tooltipContainer,
                 { height: CHART_HEIGHT + 100, top: 2 },
-                { left: x - tooltipWidth / 2 },
+                {
+                  left: x - tooltipWidth / 2,
+                },
               ]}
             >
               <View
-                style={styles.tooltip}
+                style={[
+                  styles.tooltip,
+                  {
+                    left: selectedIndex === 0 ? TOUCH_WIDTH / 2 : 0,
+                  },
+                ]}
                 onLayout={(e) => {
                   setTooltipWidth(e.nativeEvent.layout.width);
                 }}

@@ -16,7 +16,7 @@ export default function HomeScreen() {
         marginTop: 80,
       }}
     >
-      <LineChart initialDate={"2018-10-05T16:00:00.000Z"} data={data} />
+      <LineChart initialDate={"2018-01-05T16:00:00.000Z"} data={data} />
     </View>
   );
 }
