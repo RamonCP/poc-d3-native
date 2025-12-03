@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
   },
   monthBoxSelected: {
     backgroundColor: "#F9D56D",
+    borderRadius: 8,
   },
   monthText: {
     color: "#9BABBF",
