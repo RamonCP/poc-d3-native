@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { Platform, StyleSheet, View } from "react-native";
 
 import LineChart from "@/components/LineChart";
+import BarChart from "@/components/BarChart";
 
 const data = [
   1890120.9, 540320.15, 2300100.8, 980760.3, 1450600.44, 670120.01, 2450890.75,
@@ -17,6 +18,7 @@ export default function HomeScreen() {
       }}
     >
       <LineChart initialDate={"2018-01-05T16:00:00.000Z"} data={data} />
+      <BarChart />
     </View>
   );
 }
