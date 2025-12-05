@@ -4,8 +4,9 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
-  Text,
+  Text as RNText,
   Dimensions,
+  LayoutChangeEvent,
 } from "react-native";
 import Svg, {
   Path,
@@ -18,17 +19,14 @@ import * as d3 from "d3";
 import dayjs from "dayjs";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const VISIBLE_HOURS = 6;
-const CHART_HEIGHT = 200;
-const CHART_WIDTH = SCREEN_WIDTH * 1.5;
-const PADDING_LEFT = 45;
+const VISIBLE_HOURS = 7;
+const CHART_HEIGHT = 300;
 const BOTTOM_AXIS_HEIGHT = 30;
-const TOUCH_WIDTH = 55;
-const PADDING = 30;
-const GRID_LINES = 5;
+const X_AXIS_OFFSET = 30;
 
 const data = [
-  2000, 5000, 4500, 2130, 2140, 6000, 8931, 10931, 1543, 9121, 1829,
+  2000, 5000, 4500, 2130, 2140, 6000, 8931, 10931, 1543, 9121, 1000, 3500, 7200,
+  1800, 5600, 11500, 4120, 950, 6800, 2900, 12000, 7500, 2500,
 ];
 
 export default function BarChart() {
@@ -46,23 +44,41 @@ export default function BarChart() {
       d3
         .scaleBand()
         .domain(hours)
-        .range([PADDING_LEFT, CHART_WIDTH - 20])
-        .padding(0.25),
+        // .range([PADDING_LEFT, CHART_WIDTH - PADDING_LEFT])
+        .range([0, itemWidth * (data.length - 1) + 80])
+        .padding(0.2),
     []
   );
 
   const yMax = d3.max(data)!;
+  const yMin = d3.min(data)!;
 
   const yScale = useMemo(
     () =>
       d3
         .scaleLinear()
         .domain([0, yMax])
-        .range([CHART_HEIGHT - BOTTOM_AXIS_HEIGHT - 10, 20]),
-    []
+        .range([CHART_HEIGHT - BOTTOM_AXIS_HEIGHT - 8, 12]),
+    [yMax]
   );
 
-  const yTicks = yScale.ticks(5);
+  const numTicks = 4;
+  const yTicks = Array.from({ length: numTicks + 1 }, (_, i) =>
+    Math.round((yMax / numTicks) * i)
+  );
+
+  const formatPtNumber = (value: number) =>
+    d3.format(",.0f")(value).replace(/,/g, ".");
+
+  const biggestLabel = formatPtNumber(yMax);
+  const yAxisWidth = biggestLabel.length * 9;
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: false });
+    });
+    setSelectedIndex(data.length - 1);
+  }, []);
 
   return (
     <View>
@@ -76,51 +92,30 @@ export default function BarChart() {
             height: CHART_HEIGHT,
             paddingTop: 30,
             marginTop: 30,
-            marginBottom: 40,
+            marginBottom: 100,
             // borderBlockColor: "red",
             // borderWidth: 1,
-            marginRight: 40,
+            flexDirection: "row",
+            paddingRight: 10,
           }}
         >
-          <Svg height={CHART_HEIGHT} width={itemWidth * data.length}>
-            {/* {data.map((value, i) => {
-              const x = xScale(i.toString())!;
-              const barHeight = CHART_HEIGHT - 20 - yScale(value);
-
-              return (
-                <Rect
-                  key={i}
-                  x={x}
-                  y={yScale(value)}
-                  width={xScale.bandwidth()}
-                  height={barHeight}
-                  rx={6}
-                  fill={selectedIndex === i ? "#4DA6FF" : "#79C1FF"}
-                  onPress={() => setSelectedIndex(i)}
-                />
-              );
-            })} */}
+          <Svg
+            height={CHART_HEIGHT + X_AXIS_OFFSET}
+            width={itemWidth * data.length + yAxisWidth}
+            // width={CHART_WIDTH + yAxisWidth}
+          >
             {yTicks.map((tick, i) => (
               <SvgText
                 key={i}
-                x={PADDING_LEFT - 10}
+                x={itemWidth * data.length + yAxisWidth}
                 y={yScale(tick) + 4}
-                fontSize="10"
-                fill="#666"
+                fontSize="12"
+                fill="#9BABBF"
                 textAnchor="end"
               >
-                {tick}
+                {formatPtNumber(tick)}
               </SvgText>
             ))}
-
-            <Line
-              x1={PADDING_LEFT}
-              y1={20}
-              x2={PADDING_LEFT}
-              y2={CHART_HEIGHT - BOTTOM_AXIS_HEIGHT}
-              stroke="#333"
-              strokeWidth={1.5}
-            />
 
             {data.map((value, i) => {
               const hour = hours[i];
@@ -136,37 +131,60 @@ export default function BarChart() {
                   y={yScale(value)}
                   width={barWidth}
                   height={barHeight}
-                  rx={6}
-                  fill={selectedIndex === i ? "#4DA6FF" : "#79C1FF"}
+                  rx={4}
+                  fill={selectedIndex === i ? "#354053" : "#3540534D"}
                   onPress={() => setSelectedIndex(i)}
                 />
               );
             })}
 
-            {hours.map((hour, i) => {
+            {/* {hours.map((hour, i) => {
               const x = xScale(hour)! + xScale.bandwidth() / 2;
               return (
                 <SvgText
                   key={i}
                   x={x}
                   y={CHART_HEIGHT - 10}
-                  fontSize="10"
-                  fill="#555"
+                  fontSize="12"
+                  fill="#9BABBF"
                   textAnchor="middle"
                 >
                   {hour}
                 </SvgText>
               );
-            })}
+            })} */}
 
-            <Line
-              x1={PADDING_LEFT}
-              y1={CHART_HEIGHT - BOTTOM_AXIS_HEIGHT}
-              x2={CHART_WIDTH}
-              y2={CHART_HEIGHT - BOTTOM_AXIS_HEIGHT}
-              stroke="#333"
-              strokeWidth={1.5}
-            />
+            {hours.map((hour, i) => {
+              const x = xScale(hour)! + xScale.bandwidth() / 2;
+
+              return (
+                <React.Fragment key={i}>
+                  {selectedIndex === i && (
+                    <Rect
+                      x={x - 40 / 2}
+                      y={CHART_HEIGHT - 10 - 20 / 2}
+                      width={40}
+                      height={30}
+                      rx={6}
+                      fill="#F9D56D"
+                    />
+                  )}
+
+                  <SvgText
+                    x={x}
+                    y={CHART_HEIGHT}
+                    fontSize="12"
+                    textAnchor="middle"
+                    fontFamily="System"
+                    fontWeight={selectedIndex === i ? "bold" : "normal"}
+                    fill={selectedIndex === i ? "#354053" : "#9BABBF"}
+                    onPress={() => setSelectedIndex(i)}
+                  >
+                    {hour}
+                  </SvgText>
+                </React.Fragment>
+              );
+            })}
           </Svg>
         </View>
       </ScrollView>
